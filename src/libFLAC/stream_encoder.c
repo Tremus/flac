@@ -209,7 +209,7 @@ typedef struct FLAC__StreamEncoderThreadTask {
  *
  ***********************************************************************/
 
-static void set_defaults_(FLAC__StreamEncoder *encoder);
+static void FLAC__stream_encoder_set_defaults_(FLAC__StreamEncoder *encoder);
 static void free_(FLAC__StreamEncoder *encoder);
 static FLAC__bool resize_buffers_(FLAC__StreamEncoder *encoder, uint32_t new_blocksize);
 static FLAC__bool write_bitbuffer_(FLAC__StreamEncoder *encoder, FLAC__StreamEncoderThreadTask *threadtask, uint32_t samples, FLAC__bool is_last_block);
@@ -395,9 +395,9 @@ static FLAC__StreamDecoderWriteStatus verify_write_callback_(const FLAC__StreamD
 static void verify_metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data);
 static void verify_error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data);
 
-static FLAC__StreamEncoderReadStatus file_read_callback_(const FLAC__StreamEncoder *encoder, FLAC__byte buffer[], size_t *bytes, void *client_data);
-static FLAC__StreamEncoderSeekStatus file_seek_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client_data);
-static FLAC__StreamEncoderTellStatus file_tell_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client_data);
+static FLAC__StreamEncoderReadStatus FLAC__stream_encoder_file_read_callback_(const FLAC__StreamEncoder *encoder, FLAC__byte buffer[], size_t *bytes, void *client_data);
+static FLAC__StreamEncoderSeekStatus FLAC__stream_encoder_file_seek_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client_data);
+static FLAC__StreamEncoderTellStatus FLAC__stream_encoder_file_tell_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client_data);
 static FLAC__StreamEncoderWriteStatus file_write_callback_(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t bytes, uint32_t samples, uint32_t current_frame, void *client_data);
 static FILE *get_binary_stdout_(void);
 
@@ -626,7 +626,7 @@ FLAC_API FLAC__StreamEncoder *FLAC__stream_encoder_new(void)
 
 	encoder->protected_->state = FLAC__STREAM_ENCODER_UNINITIALIZED;
 
-	set_defaults_(encoder);
+	FLAC__stream_encoder_set_defaults_(encoder);
 
 	encoder->private_->is_being_deleted = false;
 
@@ -704,7 +704,7 @@ FLAC_API void FLAC__stream_encoder_delete(FLAC__StreamEncoder *encoder)
  *
  ***********************************************************************/
 
-static FLAC__StreamEncoderInitStatus init_stream_internal_(
+static FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_stream_internal_(
 	FLAC__StreamEncoder *encoder,
 	FLAC__StreamEncoderReadCallback read_callback,
 	FLAC__StreamEncoderWriteCallback write_callback,
@@ -1448,7 +1448,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_stream(
 	void *client_data
 )
 {
-	return init_stream_internal_(
+	return FLAC__stream_encoder_init_stream_internal_(
 		encoder,
 		/*read_callback=*/0,
 		write_callback,
@@ -1470,7 +1470,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_stream(
 	void *client_data
 )
 {
-	return init_stream_internal_(
+	return FLAC__stream_encoder_init_stream_internal_(
 		encoder,
 		read_callback,
 		write_callback,
@@ -1482,7 +1482,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_stream(
 	);
 }
 
-static FLAC__StreamEncoderInitStatus init_FILE_internal_(
+static FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_FILE_internal_(
 	FLAC__StreamEncoder *encoder,
 	FILE *file,
 	FLAC__StreamEncoderProgressCallback progress_callback,
@@ -1527,12 +1527,12 @@ static FLAC__StreamEncoderInitStatus init_FILE_internal_(
 	encoder->private_->samples_written = 0;
 	encoder->private_->frames_written = 0;
 
-	init_status = init_stream_internal_(
+	init_status = FLAC__stream_encoder_init_stream_internal_(
 		encoder,
-		encoder->private_->file == stdout? 0 : is_ogg? file_read_callback_ : 0,
+		encoder->private_->file == stdout? 0 : is_ogg? FLAC__stream_encoder_file_read_callback_ : 0,
 		file_write_callback_,
-		encoder->private_->file == stdout? 0 : file_seek_callback_,
-		encoder->private_->file == stdout? 0 : file_tell_callback_,
+		encoder->private_->file == stdout? 0 : FLAC__stream_encoder_file_seek_callback_,
+		encoder->private_->file == stdout? 0 : FLAC__stream_encoder_file_tell_callback_,
 		/*metadata_callback=*/0,
 		client_data,
 		is_ogg
@@ -1559,7 +1559,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_FILE(
 	void *client_data
 )
 {
-	return init_FILE_internal_(encoder, file, progress_callback, client_data, /*is_ogg=*/false);
+	return FLAC__stream_encoder_init_FILE_internal_(encoder, file, progress_callback, client_data, /*is_ogg=*/false);
 }
 
 FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_FILE(
@@ -1569,10 +1569,10 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_FILE(
 	void *client_data
 )
 {
-	return init_FILE_internal_(encoder, file, progress_callback, client_data, /*is_ogg=*/true);
+	return FLAC__stream_encoder_init_FILE_internal_(encoder, file, progress_callback, client_data, /*is_ogg=*/true);
 }
 
-static FLAC__StreamEncoderInitStatus init_file_internal_(
+static FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_file_internal_(
 	FLAC__StreamEncoder *encoder,
 	const char *filename,
 	FLAC__StreamEncoderProgressCallback progress_callback,
@@ -1599,7 +1599,7 @@ static FLAC__StreamEncoderInitStatus init_file_internal_(
 		return FLAC__STREAM_ENCODER_INIT_STATUS_ENCODER_ERROR;
 	}
 
-	return init_FILE_internal_(encoder, file, progress_callback, client_data, is_ogg);
+	return FLAC__stream_encoder_init_FILE_internal_(encoder, file, progress_callback, client_data, is_ogg);
 }
 
 FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_file(
@@ -1609,7 +1609,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_file(
 	void *client_data
 )
 {
-	return init_file_internal_(encoder, filename, progress_callback, client_data, /*is_ogg=*/false);
+	return FLAC__stream_encoder_init_file_internal_(encoder, filename, progress_callback, client_data, /*is_ogg=*/false);
 }
 
 FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_file(
@@ -1619,7 +1619,7 @@ FLAC_API FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_ogg_file(
 	void *client_data
 )
 {
-	return init_file_internal_(encoder, filename, progress_callback, client_data, /*is_ogg=*/true);
+	return FLAC__stream_encoder_init_file_internal_(encoder, filename, progress_callback, client_data, /*is_ogg=*/true);
 }
 
 FLAC_API FLAC__bool FLAC__stream_encoder_finish(FLAC__StreamEncoder *encoder)
@@ -1769,7 +1769,7 @@ FLAC_API FLAC__bool FLAC__stream_encoder_finish(FLAC__StreamEncoder *encoder)
 #endif
 
 	free_(encoder);
-	set_defaults_(encoder);
+	FLAC__stream_encoder_set_defaults_(encoder);
 
 	if(!error)
 		encoder->protected_->state = FLAC__STREAM_ENCODER_UNINITIALIZED;
@@ -2613,7 +2613,7 @@ FLAC_API FLAC__bool FLAC__stream_encoder_process_interleaved(FLAC__StreamEncoder
  *
  ***********************************************************************/
 
-void set_defaults_(FLAC__StreamEncoder *encoder)
+void FLAC__stream_encoder_set_defaults_(FLAC__StreamEncoder *encoder)
 {
 	FLAC__ASSERT(0 != encoder);
 
@@ -5218,7 +5218,7 @@ void verify_error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDeco
 	encoder->protected_->state = FLAC__STREAM_ENCODER_VERIFY_DECODER_ERROR;
 }
 
-FLAC__StreamEncoderReadStatus file_read_callback_(const FLAC__StreamEncoder *encoder, FLAC__byte buffer[], size_t *bytes, void *client_data)
+FLAC__StreamEncoderReadStatus FLAC__stream_encoder_file_read_callback_(const FLAC__StreamEncoder *encoder, FLAC__byte buffer[], size_t *bytes, void *client_data)
 {
 	(void)client_data;
 
@@ -5232,7 +5232,7 @@ FLAC__StreamEncoderReadStatus file_read_callback_(const FLAC__StreamEncoder *enc
 	return FLAC__STREAM_ENCODER_READ_STATUS_CONTINUE;
 }
 
-FLAC__StreamEncoderSeekStatus file_seek_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client_data)
+FLAC__StreamEncoderSeekStatus FLAC__stream_encoder_file_seek_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client_data)
 {
 	(void)client_data;
 
@@ -5242,7 +5242,7 @@ FLAC__StreamEncoderSeekStatus file_seek_callback_(const FLAC__StreamEncoder *enc
 		return FLAC__STREAM_ENCODER_SEEK_STATUS_OK;
 }
 
-FLAC__StreamEncoderTellStatus file_tell_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client_data)
+FLAC__StreamEncoderTellStatus FLAC__stream_encoder_file_tell_callback_(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client_data)
 {
 	FLAC__off_t offset;
 

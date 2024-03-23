@@ -1902,10 +1902,10 @@ FLAC_API FLAC__byte * FLAC__metadata_object_get_raw(const FLAC__StreamMetadata *
 
 /* The following callbacks are for FLAC__metadata_object_set_raw */
 
-static FLAC__StreamDecoderReadStatus read_callback_(const FLAC__StreamDecoder *decoder, FLAC__byte *buffer, size_t *bytes, void *client_data);
-static FLAC__StreamDecoderWriteStatus write_callback_(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data);
-static void metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data);
-static void error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data);
+static FLAC__StreamDecoderReadStatus FLAC__metadata_object_read_callback_(const FLAC__StreamDecoder *decoder, FLAC__byte *buffer, size_t *bytes, void *client_data);
+static FLAC__StreamDecoderWriteStatus FLAC__metadata_object_write_callback_(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data);
+static void FLAC__metadata_object_metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data);
+static void FLAC__metadata_object_error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data);
 
 typedef struct {
 	FLAC__StreamMetadata *object;
@@ -1934,7 +1934,7 @@ FLAC_API FLAC__StreamMetadata * FLAC__metadata_object_set_raw(FLAC__byte *buffer
 	FLAC__stream_decoder_set_md5_checking(decoder, false);
 	FLAC__stream_decoder_set_metadata_respond_all(decoder);
 
-	if(FLAC__stream_decoder_init_stream(decoder, read_callback_, NULL, NULL, NULL, NULL, write_callback_, metadata_callback_, error_callback_, &cd) != FLAC__STREAM_DECODER_INIT_STATUS_OK || cd.got_error) {
+	if(FLAC__stream_decoder_init_stream(decoder, FLAC__metadata_object_read_callback_, NULL, NULL, NULL, NULL, FLAC__metadata_object_write_callback_, FLAC__metadata_object_metadata_callback_, FLAC__metadata_object_error_callback_, &cd) != FLAC__STREAM_DECODER_INIT_STATUS_OK || cd.got_error) {
 		(void)FLAC__stream_decoder_finish(decoder);
 		FLAC__stream_decoder_delete(decoder);
 		return 0;
@@ -1955,7 +1955,7 @@ FLAC_API FLAC__StreamMetadata * FLAC__metadata_object_set_raw(FLAC__byte *buffer
 
 }
 
-FLAC__StreamDecoderReadStatus read_callback_(const FLAC__StreamDecoder *decoder, FLAC__byte *buffer, size_t *bytes, void *client_data)
+FLAC__StreamDecoderReadStatus FLAC__metadata_object_read_callback_(const FLAC__StreamDecoder *decoder, FLAC__byte *buffer, size_t *bytes, void *client_data)
 {
 	set_raw_client_data *cd = (set_raw_client_data *)client_data;
 	(void)decoder;
@@ -1986,14 +1986,14 @@ FLAC__StreamDecoderReadStatus read_callback_(const FLAC__StreamDecoder *decoder,
 	}
 }
 
-FLAC__StreamDecoderWriteStatus write_callback_(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
+FLAC__StreamDecoderWriteStatus FLAC__metadata_object_write_callback_(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
 {
 	(void)decoder, (void)frame, (void)buffer, (void)client_data;
 
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
-void metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
+void FLAC__metadata_object_metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
 {
 	set_raw_client_data *cd = (set_raw_client_data *)client_data;
 	(void)decoder;
@@ -2008,7 +2008,7 @@ void metadata_callback_(const FLAC__StreamDecoder *decoder, const FLAC__StreamMe
 	}
 }
 
-void error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
+void FLAC__metadata_object_error_callback_(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
 {
 	set_raw_client_data *cd = (set_raw_client_data *)client_data;
 	(void)decoder;
