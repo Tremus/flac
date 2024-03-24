@@ -7,6 +7,12 @@
 #define PRIu64 "llu"
 #endif
 
+#ifdef __aarch64__
+#define FLAC__CPU_ARM64
+#define FLAC__HAS_NEONINTRIN 1
+#define FLAC__HAS_A64NEONINTRIN 1
+#endif
+
 #include "libFLAC/bitmath.c"
 #include "libFLAC/bitreader.c"
 #include "libFLAC/bitwriter.c"
@@ -20,7 +26,7 @@
 // #include "libFLAC/float.c"
 #include "libFLAC/format.c"
 #include "libFLAC/lpc.c"
-// #include "libFLAC/lpc_intrin_neon.c"
+#include "libFLAC/lpc_intrin_neon.c"
 // #include "libFLAC/lpc_intrin_sse2.c"
 // #include "libFLAC/lpc_intrin_sse41.c"
 // #include "libFLAC/lpc_intrin_avx2.c"

@@ -6,6 +6,8 @@
 *.dll
 *.dylib
 *.exe
+.DS_Store
+.cache
 .deps
 .libs
 aclocal.m4
