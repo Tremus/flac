@@ -13,23 +13,21 @@
 #define FLAC__HAS_A64NEONINTRIN 1
 #endif
 
+#ifdef _WIN32
+#define FLAC__NO_DLL
+#include "src/share/win_utf8_io/win_utf8_io.c"
+#endif
+
 #include "libFLAC/bitmath.c"
 #include "libFLAC/bitreader.c"
 #include "libFLAC/bitwriter.c"
 #include "libFLAC/cpu.c"
 #include "libFLAC/crc.c"
 #include "libFLAC/fixed.c"
-// #include "libFLAC/fixed_intrin_sse2.c"
-// #include "libFLAC/fixed_intrin_ssse3.c"
-// #include "libFLAC/fixed_intrin_sse42.c"
-// #include "libFLAC/fixed_intrin_avx2.c"
 // #include "libFLAC/float.c"
 #include "libFLAC/format.c"
 #include "libFLAC/lpc.c"
-#include "libFLAC/lpc_intrin_neon.c"
-// #include "libFLAC/lpc_intrin_sse2.c"
-// #include "libFLAC/lpc_intrin_sse41.c"
-// #include "libFLAC/lpc_intrin_avx2.c"
+
 // #include "libFLAC/lpc_intrin_fma.c"
 #include "libFLAC/md5.c"
 #include "libFLAC/memory.c"
@@ -37,8 +35,21 @@
 #include "libFLAC/metadata_object.c"
 #include "libFLAC/stream_decoder.c"
 #include "libFLAC/stream_encoder.c"
-// #include "libFLAC/stream_encoder_intrin_sse2.c"
-// #include "libFLAC/stream_encoder_intrin_ssse3.c"
-// #include "libFLAC/stream_encoder_intrin_avx2.c"
 #include "libFLAC/stream_encoder_framing.c"
 #include "libFLAC/window.c"
+
+#ifdef __x86_64__
+#define FLAC__HAS_X86INTRIN 1
+// #include "libFLAC/fixed_intrin_sse2.c"
+// #include "libFLAC/fixed_intrin_ssse3.c"
+#include "libFLAC/fixed_intrin_sse42.c"
+// #include "libFLAC/fixed_intrin_avx2.c"
+// #include "libFLAC/lpc_intrin_sse2.c"
+#include "libFLAC/lpc_intrin_sse41.c"
+// #include "libFLAC/lpc_intrin_avx2.c"
+// #include "libFLAC/stream_encoder_intrin_sse2.c"
+#include "libFLAC/stream_encoder_intrin_ssse3.c"
+// #include "libFLAC/stream_encoder_intrin_avx2.c"
+#elif __aarch64__
+#include "libFLAC/lpc_intrin_neon.c"
+#endif
