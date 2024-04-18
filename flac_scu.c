@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstatic-in-inline"
 #define PACKAGE_VERSION "1.3.4"
 #define HAVE_LROUND
 #define FLAC__HAS_OGG 0
@@ -53,3 +55,4 @@
 #elif __aarch64__
 #include "libFLAC/lpc_intrin_neon.c"
 #endif
+#pragma clang diagnostic pop
