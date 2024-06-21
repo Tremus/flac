@@ -38,14 +38,18 @@
 #define FLAC__ASSERT(x) if(!(x)) __builtin_abort();
 #define FLAC__ASSERT_DECLARATION(x) x
 #else
+
 #ifndef NDEBUG
+#ifndef FLAC__ASSERT
 #include <assert.h>
 #define FLAC__ASSERT(x) assert(x)
+#endif // FLAC__ASSERT
 #define FLAC__ASSERT_DECLARATION(x) x
 #else
 #define FLAC__ASSERT(x)
 #define FLAC__ASSERT_DECLARATION(x)
-#endif
-#endif
+#endif // NDEBUG
+
+#endif // FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 
 #endif
