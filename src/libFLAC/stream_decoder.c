@@ -1429,7 +1429,8 @@ FLAC_API FLAC__uint64 FLAC__stream_decoder_find_total_samples(FLAC__StreamDecode
 			decoder->private_->got_a_frame = false;
 			if(!FLAC__stream_decoder_process_single(decoder) ||
 			   decoder->protected_->state == FLAC__STREAM_DECODER_ABORTED) {
-				decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
+				if(decoder->protected_->state != FLAC__STREAM_DECODER_ABORTED && decoder->protected_->state != FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR)
+					decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
 				return 0;
 			}
 			if(decoder->private_->got_a_frame) {
@@ -1441,7 +1442,8 @@ FLAC_API FLAC__uint64 FLAC__stream_decoder_find_total_samples(FLAC__StreamDecode
 					decoder->private_->fixed_block_size = decoder->private_->last_frame.header.blocksize;
 					if(!FLAC__stream_decoder_process_single(decoder) ||
 					   decoder->protected_->state == FLAC__STREAM_DECODER_ABORTED) {
-						 decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
+						if(decoder->protected_->state != FLAC__STREAM_DECODER_ABORTED && decoder->protected_->state != FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR)
+							decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
 						return 0;
 					}
 					if(decoder->protected_->state == FLAC__STREAM_DECODER_END_OF_STREAM) {
@@ -3776,7 +3778,8 @@ FLAC__bool seek_to_absolute_sample_(FLAC__StreamDecoder *decoder, FLAC__uint64 s
 				continue;
 			}
 			else {
-				decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
+				if(decoder->protected_->state != FLAC__STREAM_DECODER_ABORTED && decoder->protected_->state != FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR)
+					decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
 				return false;
 			}
 		}
@@ -3964,7 +3967,8 @@ FLAC__bool seek_to_absolute_sample_ogg_(FLAC__StreamDecoder *decoder, FLAC__uint
 		decoder->private_->got_a_frame = false;
 		if(!FLAC__stream_decoder_process_single(decoder) ||
 		   decoder->protected_->state == FLAC__STREAM_DECODER_ABORTED) {
-			decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
+			if(decoder->protected_->state != FLAC__STREAM_DECODER_ABORTED && decoder->protected_->state != FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR)
+				decoder->protected_->state = FLAC__STREAM_DECODER_SEEK_ERROR;
 			return false;
 		}
 		if(!decoder->private_->got_a_frame) {
