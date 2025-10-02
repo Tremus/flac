@@ -15,6 +15,10 @@
 #define FLAC__HAS_A64NEONINTRIN 1
 #endif
 
+#ifdef __APPLE__
+#define HAVE_FSEEKO
+#endif
+
 #ifdef _WIN32
 #define FLAC__NO_DLL
 #include "src/share/win_utf8_io/win_utf8_io.c"
