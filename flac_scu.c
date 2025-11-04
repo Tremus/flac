@@ -44,7 +44,7 @@
 #include "libFLAC/stream_encoder_framing.c"
 #include "libFLAC/window.c"
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(_M_X64)
 #define FLAC__HAS_X86INTRIN 1
 // #include "libFLAC/fixed_intrin_sse2.c"
 // #include "libFLAC/fixed_intrin_ssse3.c"
